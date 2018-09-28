@@ -6,8 +6,9 @@
 |___/_|_|\___|_|\_(_)/ |___/
                    |__/
 
- Version: 1.9.0
+ Version: 1.9.1
   Author: Ken Wheeler
+  Edited by: Sean Kendle on 09/28/2018 - Added support for other element types with lazy-loading using background-image
  Website: http://kenwheeler.github.io
     Docs: http://kenwheeler.github.io/slick
     Repo: http://github.com/kenwheeler/slick
@@ -27,6 +28,7 @@
 
 }(function($) {
     'use strict';
+
     var Slick = window.Slick || {};
 
     Slick = (function() {
@@ -533,7 +535,15 @@
             _.options.slidesToScroll = 1;
         }
 
-        $('img[data-lazy]', _.$slider).not('[src]').addClass('slick-loading');
+        $('*[data-lazy]', _.$slider).each(function (i, e) {
+            var $lazy = $(e);
+            if ($(e).prop('tagName') === 'IMG')
+                $lazy.is('[src]') || $lazy.addClass('slick-loading');
+            else {
+                $lazy.css("background-image") === "none" && $lazy.addClass('slick-loading');
+            }
+
+        });
 
         _.setupInfinite();
 
@@ -818,7 +828,6 @@
     };
 
     Slick.prototype.cleanUpRows = function() {
-
         var _ = this, originalSlides;
 
         if(_.options.rows > 0) {
@@ -1539,14 +1548,12 @@
     };
 
     Slick.prototype.lazyLoad = function() {
-
         var _ = this,
             loadRange, cloneRange, rangeStart, rangeEnd;
 
         function loadImages(imagesScope) {
 
-            $('img[data-lazy]', imagesScope).each(function() {
-
+            $('*[data-lazy]', imagesScope).each(function() {
                 var image = $(this),
                     imageSource = $(this).attr('data-lazy'),
                     imageSrcSet = $(this).attr('data-srcset'),
@@ -1568,9 +1575,13 @@
                                 }
                             }
 
-                            image
-                                .attr('src', imageSource)
-                                .animate({ opacity: 1 }, 200, function() {
+                            if (image.prop('tagName') === 'IMG')
+                                image.attr('src', imageSource);
+                            else {
+                                image.css('background-image', "url('" + imageSource + "')");
+                            }
+
+                                image.animate({ opacity: 1 }, 200, function() {
                                     image
                                         .removeAttr('data-lazy data-srcset data-sizes')
                                         .removeClass('slick-loading');
@@ -1764,7 +1775,7 @@
         tryCount = tryCount || 1;
 
         var _ = this,
-            $imgsToLoad = $( 'img[data-lazy]', _.$slider ),
+            $imgsToLoad = $( '*[data-lazy]', _.$slider ),
             image,
             imageSource,
             imageSrcSet,
@@ -1791,9 +1802,14 @@
                     }
                 }
 
-                image
-                    .attr( 'src', imageSource )
-                    .removeAttr('data-lazy data-srcset data-sizes')
+
+                if (image.prop('tagName') === 'IMG')
+                    image.attr('src', imageSource);
+                else {
+                    image.css('background-image', "url('" + imageSource + "')");
+                }
+
+                image.removeAttr('data-lazy data-srcset data-sizes')
                     .removeClass('slick-loading');
 
                 if ( _.options.adaptiveHeight === true ) {
