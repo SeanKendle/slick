@@ -537,7 +537,7 @@
 
         $('*[data-lazy]', _.$slider).each(function (i, e) {
             var $lazy = $(e);
-            if ($(e).prop("tagName") === "IMG")
+            if ($(e).prop('tagName') === 'IMG')
                 $lazy.is('[src]') || $lazy.addClass('slick-loading');
             else {
                 $lazy.css("background-image") === "none" && $lazy.addClass('slick-loading');
@@ -1803,7 +1803,7 @@
                 }
 
 
-                if (image.prop("tagName") === "IMG")
+                if (image.prop('tagName') === 'IMG')
                     image.attr('src', imageSource);
                 else {
                     image.css('background-image', "url('" + imageSource + "')");
